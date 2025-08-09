@@ -79,7 +79,6 @@
     <option value="PinballGame">PinballGame</option>
     <option value="NewBattlePass">NewBattlePass</option>
     <option value="HappyElimination">HappyElimination</option>
-    <option value="receivingHistory">receivingHistory</option>
 </select>
 
         <textarea id="ssidInput" placeholder="ssid1\nssid2\nssid3"
