@@ -116,7 +116,7 @@
     const allActivities = Array.from(panelDiv.querySelector('#missionSelect').options)
         .filter(opt => opt.value !== 'ALL')
         .map(opt => opt.value);
-
+    
     const sleep = ms => new Promise(r => setTimeout(r, ms));
 
     async function handleAction(actionType) {
