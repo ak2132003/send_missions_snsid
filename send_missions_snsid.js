@@ -9,14 +9,20 @@
 
 (function () {
     'use strict';
-function safeAppend(element) {
+function safeAppend(elementCreator) {
     if (!document.body) {
-        setTimeout(() => safeAppend(element), 100);
+        setTimeout(() => safeAppend(elementCreator), 100);
     } else {
-        document.body.appendChild(element);
+        document.body.appendChild(elementCreator());
     }
 }
 
+// ثم تستخدمها هكذا:
+safeAppend(() => {
+    const iconButton = document.createElement('div');
+    // إعدادات iconButton
+    return iconButton;
+});
 
     const SUPABASE_URL = 'https://wuauxagghhzqrxgotcqo.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1YXV4YWdnaGh6cXJ4Z290Y3FvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0NjU3NzYsImV4cCI6MjA2ODA0MTc3Nn0.W7Ayyfdh3qmrfzw_F5t35umQZRIdmqKENNdk3HYcNVE';
