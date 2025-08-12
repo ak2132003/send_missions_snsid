@@ -9,6 +9,14 @@
 
 (function () {
     'use strict';
+function safeAppend(element) {
+    if (!document.body) {
+        setTimeout(() => safeAppend(element), 100);
+    } else {
+        document.body.appendChild(element);
+    }
+}
+
 
     const SUPABASE_URL = 'https://wuauxagghhzqrxgotcqo.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1YXV4YWdnaGh6cXJ4Z290Y3FvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0NjU3NzYsImV4cCI6MjA2ODA0MTc3Nn0.W7Ayyfdh3qmrfzw_F5t35umQZRIdmqKENNdk3HYcNVE';
@@ -35,7 +43,18 @@
         panelDiv.style.display = 'block';
         iconButton.style.display = 'none';
     };
-    document.body.appendChild(iconButton);
+    function safeAppend(element) {
+    if (!document.body) {
+        setTimeout(() => safeAppend(element), 100);
+    } else {
+        document.body.appendChild(element);
+    }
+}
+
+// ثم استبدل كل document.body.appendChild بـ safeAppend
+safeAppend(iconButton);
+// وفي مكان document.body.appendChild(panelDiv);
+safeAppend(panelDiv);
 
     // ➋ واجهة السكربت (مخفيّة مبدئيًا)
     const panelDiv = document.createElement('div');
