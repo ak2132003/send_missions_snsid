@@ -9,103 +9,81 @@
 
 (function () {
     'use strict';
-function safeAppend(elementCreator) {
-    if (!document.body) {
-        setTimeout(() => safeAppend(elementCreator), 100);
-    } else {
-        document.body.appendChild(elementCreator());
-    }
-}
 
-// ثم تستخدمها هكذا:
-safeAppend(() => {
-    const iconButton = document.createElement('div');
-    // إعدادات iconButton
-    return iconButton;
-});
+    // الدالة المساعدة لضمان وجود document.body قبل الإضافة
+    function safeAppend(element) {
+        if (!document.body) {
+            setTimeout(() => safeAppend(element), 100);
+        } else {
+            document.body.appendChild(element);
+        }
+    }
 
     const SUPABASE_URL = 'https://wuauxagghhzqrxgotcqo.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1YXV4YWdnaGh6cXJ4Z290Y3FvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0NjU3NzYsImV4cCI6MjA2ODA0MTc3Nn0.W7Ayyfdh3qmrfzw_F5t35umQZRIdmqKENNdk3HYcNVE';
 
-    // ➊ زر أيقونة في منتصف أسفل الصفحة
+    // 1. إنشاء عنصر الأيقونة
     const iconButton = document.createElement('div');
     iconButton.innerHTML = '🪙';
     iconButton.title = "فتح سكربت العملات";
     iconButton.style = `
-        position:fixed;
-        bottom:30px;
-        left:50%;
-        transform:translateX(-50%);
-        background:#222;
-        color:white;
-        font-size:24px;
-        padding:10px 15px;
-        border-radius:50%;
-        cursor:pointer;
-        z-index:9999;
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #222;
+        color: white;
+        font-size: 24px;
+        padding: 10px 15px;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 9999;
         box-shadow: 0 0 10px #000;
     `;
-    iconButton.onclick = () => {
-        panelDiv.style.display = 'block';
-        iconButton.style.display = 'none';
-    };
-    function safeAppend(element) {
-    if (!document.body) {
-        setTimeout(() => safeAppend(element), 100);
-    } else {
-        document.body.appendChild(element);
-    }
-}
 
-// ثم استبدل كل document.body.appendChild بـ safeAppend
-safeAppend(iconButton);
-// وفي مكان document.body.appendChild(panelDiv);
-safeAppend(panelDiv);
-
-    // ➋ واجهة السكربت (مخفيّة مبدئيًا)
+    // 2. إنشاء لوحة التحكم
     const panelDiv = document.createElement('div');
     panelDiv.className = 'dr-panel';
     panelDiv.style = `
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #222;
-    padding: 15px;
-    border-radius: 10px;
-    z-index: 9999;
-    color: white;
-    width: 300px;
-    box-shadow: 0 0 10px #000;
-`;
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #222;
+        padding: 15px;
+        border-radius: 10px;
+        z-index: 9999;
+        color: white;
+        width: 300px;
+        box-shadow: 0 0 10px #000;
+    `;
 
     panelDiv.innerHTML = `
         <h3>🎯 مشاركة الروابط (المهمات)</h3>
-       <select id="missionSelect" style="margin-bottom:10px;">
-    <option value="ALL">📌 كل المهمات</option>
-    <option value="MysticTreasureHunt">MysticTreasureHunt</option>
-    <option value="MysteryShopKeeper">MysteryShopKeeper</option>
-    <option value="HalloweenEvent">HalloweenEvent</option>
-    <option value="TheCandyDreamHouse">TheCandyDreamHouse</option>
-    <option value="ComeinIfYouDare">ComeinIfYouDare</option>
-    <option value="VikingVoyage_revival">VikingVoyage_revival</option>
-    <option value="WishesDoComeTrue_revival">WishesDoComeTrue_revival</option>
-    <option value="BecomingaChampioninWinter">BecomingaChampioninWinter</option>
-    <option value="PerfectSelfieofMoms_revival">PerfectSelfieofMoms_revival</option>
-    <option value="LuckyandtheLepreca_revival">LuckyandtheLepreca_revival</option>
-    <option value="FunTimeatTheAmusementPark">FunTimeatTheAmusementPark</option>
-    <option value="OutdoorFilmFestival">OutdoorFilmFestival</option>
-    <option value="MidsummerEnchantedForest_revival">MidsummerEnchantedForest_revival</option>
-    <option value="FathersDayGift">FathersDayGift</option>
-    <option value="CruiseVacationFilm">CruiseVacationFilm</option>
-    <option value="TheLoveStory_revival">TheLoveStory_revival</option>
-    <option value="FoundtheRealGold_revival">FoundtheRealGold_revival</option>
-    <option value="PinballGame">PinballGame</option>
-    <option value="NewBattlePass">NewBattlePass</option>
-    <option value="HappyElimination">HappyElimination</option>
-</select>
-
+        <select id="missionSelect" style="margin-bottom:10px;">
+            <option value="ALL">📌 كل المهمات</option>
+            <option value="MysticTreasureHunt">MysticTreasureHunt</option>
+            <option value="MysteryShopKeeper">MysteryShopKeeper</option>
+            <option value="HalloweenEvent">HalloweenEvent</option>
+            <option value="TheCandyDreamHouse">TheCandyDreamHouse</option>
+            <option value="ComeinIfYouDare">ComeinIfYouDare</option>
+            <option value="VikingVoyage_revival">VikingVoyage_revival</option>
+            <option value="WishesDoComeTrue_revival">WishesDoComeTrue_revival</option>
+            <option value="BecomingaChampioninWinter">BecomingaChampioninWinter</option>
+            <option value="PerfectSelfieofMoms_revival">PerfectSelfieofMoms_revival</option>
+            <option value="LuckyandtheLepreca_revival">LuckyandtheLepreca_revival</option>
+            <option value="FunTimeatTheAmusementPark">FunTimeatTheAmusementPark</option>
+            <option value="OutdoorFilmFestival">OutdoorFilmFestival</option>
+            <option value="MidsummerEnchantedForest_revival">MidsummerEnchantedForest_revival</option>
+            <option value="FathersDayGift">FathersDayGift</option>
+            <option value="CruiseVacationFilm">CruiseVacationFilm</option>
+            <option value="TheLoveStory_revival">TheLoveStory_revival</option>
+            <option value="FoundtheRealGold_revival">FoundtheRealGold_revival</option>
+            <option value="PinballGame">PinballGame</option>
+            <option value="NewBattlePass">NewBattlePass</option>
+            <option value="HappyElimination">HappyElimination</option>
+        </select>
         <textarea id="ssidInput" placeholder="ssid1\nssid2\nssid3"
             style="width: 100%; height: 100px; margin-top: 8px; resize: vertical;"></textarea>
         <div style="display: flex; gap: 8px; margin-top: 10px;">
@@ -118,17 +96,27 @@ safeAppend(panelDiv);
         <div style="text-align:center;color:white;font-size:14px;margin-top:10px;">👑 بواسطة د.أحمد خالد</div>
         <div class="close-btn" style="position:absolute;top:5px;right:10px;cursor:pointer;" title="إغلاق">✖️</div>
     `;
-    document.body.appendChild(panelDiv);
+
+    // 3. إضافة العناصر إلى الصفحة
+    safeAppend(iconButton);
+    safeAppend(panelDiv);
+
+    // 4. إعداد الأحداث
+    iconButton.onclick = () => {
+        panelDiv.style.display = 'block';
+        iconButton.style.display = 'none';
+    };
 
     panelDiv.querySelector('.close-btn').onclick = () => {
         panelDiv.style.display = 'none';
         iconButton.style.display = 'block';
     };
 
-
+    // 5. وظائف السكربت
     const allActivities = Array.from(panelDiv.querySelector('#missionSelect').options)
-    .filter(opt => opt.value !== 'ALL')
-    .map(opt => opt.value);
+        .filter(opt => opt.value !== 'ALL')
+        .map(opt => opt.value);
+
     const sleep = ms => new Promise(r => setTimeout(r, ms));
 
     async function handleAction(actionType) {
