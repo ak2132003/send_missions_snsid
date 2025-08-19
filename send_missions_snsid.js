@@ -83,6 +83,7 @@
             <option value="PinballGame">PinballGame</option>
             <option value="NewBattlePass">NewBattlePass</option>
             <option value="HappyElimination">HappyElimination</option>
+<option value="ColorSphere">ColorSphere</option>
         </select>
         <textarea id="ssidInput" placeholder="ssid1\nssid2\nssid3"
             style="width: 100%; height: 100px; margin-top: 8px; resize: vertical;"></textarea>
