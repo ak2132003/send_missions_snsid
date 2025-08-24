@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Token Panel (By Dr. Ahmed Khaled)
 // @namespace    https://ahmed-khaled.com/
-// @version      1.3
-// @description  مشاركة العملات في المهمات - يسمح فقط لـ snsid الموجود في قاعدة البيانات
+// @version      1.5
+// @description  مشاركة العملات في المهمات - يسمح فقط لـ snsid الموجود في قاعدة البيانات + عرض المرسلين اليوم
 // @match        *.centurygames.com/*
 // @grant        unsafeWindow
 // ==/UserScript==
@@ -10,7 +10,6 @@
 (function () {
     'use strict';
 
-    // الدالة المساعدة لضمان وجود document.body قبل الإضافة
     function safeAppend(element) {
         if (!document.body) {
             setTimeout(() => safeAppend(element), 100);
@@ -22,7 +21,7 @@
     const SUPABASE_URL = 'https://wuauxagghhzqrxgotcqo.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1YXV4YWdnaGh6cXJ4Z290Y3FvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI0NjU3NzYsImV4cCI6MjA2ODA0MTc3Nn0.W7Ayyfdh3qmrfzw_F5t35umQZRIdmqKENNdk3HYcNVE';
 
-    // 1. إنشاء عنصر الأيقونة
+    // 1. أيقونة
     const iconButton = document.createElement('div');
     iconButton.innerHTML = '🪙';
     iconButton.title = "فتح سكربت العملات";
@@ -41,7 +40,7 @@
         box-shadow: 0 0 10px #000;
     `;
 
-    // 2. إنشاء لوحة التحكم
+    // 2. لوحة التحكم
     const panelDiv = document.createElement('div');
     panelDiv.className = 'dr-panel';
     panelDiv.style = `
@@ -55,7 +54,9 @@
         border-radius: 10px;
         z-index: 9999;
         color: white;
-        width: 300px;
+        width: 320px;
+        max-height: 90%;
+        overflow-y: auto;
         box-shadow: 0 0 10px #000;
     `;
 
@@ -83,7 +84,7 @@
             <option value="PinballGame">PinballGame</option>
             <option value="NewBattlePass">NewBattlePass</option>
             <option value="HappyElimination">HappyElimination</option>
-<option value="ColorSphere">ColorSphere</option>
+            <option value="ColorSphere">ColorSphere</option>
         </select>
         <textarea id="ssidInput" placeholder="ssid1\nssid2\nssid3"
             style="width: 100%; height: 100px; margin-top: 8px; resize: vertical;"></textarea>
@@ -93,19 +94,26 @@
         </div>
         <div id="loadingSpinner" style="display:none;margin-top:10px;color:white;">🔄 جاري المعالجة...</div>
         <div id="resultMessage" style="margin-top:12px;color:white;font-weight:bold;white-space:pre-wrap;"></div>
+        <div id="sendersTable" style="margin-top:15px; color:white; font-size:13px; max-height:200px; overflow:auto; border-top:1px solid #444; padding-top:8px;">
+            📊 المرسلون اليوم (7ص - 7ص):<br>⏳ جاري التحميل...
+        </div>
         <div style="text-align:center;color:white;font-size:14px;margin-top:10px;">👑 سكريبت ميجا</div>
         <div style="text-align:center;color:white;font-size:14px;margin-top:10px;">👑 بواسطة د.أحمد خالد</div>
         <div class="close-btn" style="position:absolute;top:5px;right:10px;cursor:pointer;" title="إغلاق">✖️</div>
     `;
 
-    // 3. إضافة العناصر إلى الصفحة
+    // 🔹 تعريف sendersTable
+    const sendersTable = panelDiv.querySelector('#sendersTable');
+
+    // 3. إضافة العناصر
     safeAppend(iconButton);
     safeAppend(panelDiv);
 
-    // 4. إعداد الأحداث
+    // 4. أحداث
     iconButton.onclick = () => {
         panelDiv.style.display = 'block';
         iconButton.style.display = 'none';
+        loadSendersToday(); // تحديث الجدول عند الفتح
     };
 
     panelDiv.querySelector('.close-btn').onclick = () => {
@@ -113,12 +121,97 @@
         iconButton.style.display = 'block';
     };
 
-    // 5. وظائف السكربت
     const allActivities = Array.from(panelDiv.querySelector('#missionSelect').options)
         .filter(opt => opt.value !== 'ALL')
         .map(opt => opt.value);
-    
+
     const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+    // 📝 حذف القديم + تسجيل جديد
+    async function logSendAction(fromSnsid, toSsid) {
+        // احذف أي لوج قديم بين نفس الطرفين
+        await fetch(`${SUPABASE_URL}/rest/v1/send_logs?from_snsid=eq.${fromSnsid}&to_snsid=eq.${toSsid}`, {
+            method: "DELETE",
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        // ثم أضف الجديد
+        await fetch(`${SUPABASE_URL}/rest/v1/send_logs`, {
+            method: "POST",
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                from_snsid: fromSnsid,
+                to_snsid: toSsid,
+                created_at: new Date().toISOString()
+            })
+        });
+    }
+
+    // 📊 عرض المرسلين اليوم
+    async function loadSendersToday() {
+        const now = new Date();
+        // فرق توقيت مصر +2
+        now.setHours(now.getHours() + 2);
+
+        const start = new Date(now);
+        start.setHours(7, 0, 0, 0);
+
+        let end = new Date(start);
+        if (now < start) {
+            start.setDate(start.getDate() - 1);
+            end = new Date(start);
+            end.setDate(end.getDate() + 1);
+        } else {
+            end.setDate(end.getDate() + 1);
+        }
+
+        const startISO = start.toISOString();
+        const endISO = end.toISOString();
+
+        const mySnsid = document.querySelector('#user-snsid')?.textContent?.match(/\d+/)?.[0]
+            || document.querySelector('.footer-snsid')?.textContent?.match(/\d+/)?.[0]
+            || 'unknown';
+
+        if (mySnsid === 'unknown') {
+            sendersTable.innerHTML = "⚠️ لم يتم التعرف على SNSID الخاص بك.";
+            return;
+        }
+
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/send_logs?to_snsid=eq.${mySnsid}&created_at=gte.${startISO}&created_at=lt.${endISO}`, {
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Accept': 'application/json'
+            }
+        });
+        const data = await res.json();
+
+        if (!data || data.length === 0) {
+            sendersTable.innerHTML = "<b>📊 من أرسل لي اليوم (7ص - 7ص):</b><br>لا يوجد إرسال حتى الآن.";
+            return;
+        }
+
+        const grouped = {};
+        data.forEach(row => {
+            if (row.from_snsid !== mySnsid) { // ✅ استبعد نفسي
+                grouped[row.from_snsid] = (grouped[row.from_snsid] || 0) + 1;
+            }
+        });
+
+        let html = "<b>📊 من أرسل لي اليوم (7ص - 7ص):</b><br>";
+        for (const [snsid, count] of Object.entries(grouped)) {
+            html += `👤 SNSID: ${snsid} → ${count} مرة<br>`;
+        }
+        sendersTable.innerHTML = html;
+    }
 
     async function handleAction(actionType) {
         const input = panelDiv.querySelector('#ssidInput').value.trim();
@@ -184,6 +277,11 @@
                         needResponse: actionType === 'send' ? 'Activity/SharingToken' : 'Activity/SharingToken3',
                         ...(actionType === 'accept' ? { opTime: 1011.327 } : { cur_sceneid: 2 })
                     });
+
+                    if (actionType === "send") {
+                        await logSendAction(snsid, ssid);
+                    }
+
                     await sleep(0);
                     total++;
                 }
@@ -197,6 +295,7 @@
             console.error(e);
         } finally {
             spinner.style.display = 'none';
+            if (actionType === "send") loadSendersToday();
         }
     }
 
