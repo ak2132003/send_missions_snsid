@@ -208,7 +208,7 @@
 
         let html = "<b>📊 من أرسل لي اليوم (7ص - 7ص):</b><br>";
         for (const [snsid, count] of Object.entries(grouped)) {
-            html += `👤 SNSID: ${snsid} → ${count} مرة<br>`;
+            html += `👤 SNSID: ${snsid} → ${count}<br>`;
         }
         sendersTable.innerHTML = html;
     }
