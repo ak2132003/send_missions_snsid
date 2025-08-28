@@ -267,7 +267,7 @@
         const targetActivities = selectedActivity === 'ALL' ? allActivities : [selectedActivity];
         let total = 0;
 
-       try {
+      try {
     for (const ssid of ssids) {
         let completed = 0;
 
@@ -285,7 +285,7 @@
             await sleep(0);
         }
 
-        // ✅ يسجل فقط في حالة ALL بعد ما يخلص كل المهمات
+        // ✅ تسجيل فقط لو ALL وكل المهمات خلصت
         if (actionType === "send" && selectedActivity === "ALL" && completed === targetActivities.length) {
             await logSendAction(snsid, ssid);
         }
