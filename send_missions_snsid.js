@@ -267,37 +267,40 @@
         const targetActivities = selectedActivity === 'ALL' ? allActivities : [selectedActivity];
         let total = 0;
 
-        try {
-            for (const activity of targetActivities) {
-                for (const ssid of ssids) {
-                    await unsafeWindow.NetUtils.request('Activity/SharingToken', {
-                        action: actionType,
-                        activity,
-                        [`${actionType === 'send' ? 'to' : 'from'}Snsids`]: [ssid],
-                        needResponse: actionType === 'send' ? 'Activity/SharingToken' : 'Activity/SharingToken3',
-                        ...(actionType === 'accept' ? { opTime: 1011.327 } : { cur_sceneid: 2 })
-                    });
+       try {
+    for (const ssid of ssids) {
+        let completed = 0;
 
-                    if (actionType === "send") {
-                        await logSendAction(snsid, ssid);
-                    }
+        for (const activity of targetActivities) {
+            await unsafeWindow.NetUtils.request('Activity/SharingToken', {
+                action: actionType,
+                activity,
+                [`${actionType === 'send' ? 'to' : 'from'}Snsids`]: [ssid],
+                needResponse: actionType === 'send' ? 'Activity/SharingToken' : 'Activity/SharingToken3',
+                ...(actionType === 'accept' ? { opTime: 1011.327 } : { cur_sceneid: 2 })
+            });
 
-                    await sleep(0);
-                    total++;
-                }
-            }
+            completed++;
+            total++;
+            await sleep(0);
+        }
 
-            resultMsg.style.color = '#0f0';
-            resultMsg.textContent = `✅ تم ${actionType === 'send' ? 'إرسال' : 'استقبال'} العملات بنجاح!\nعدد العمليات: ${total}`;
-        } catch (e) {
-            resultMsg.style.color = 'red';
-            resultMsg.textContent = `❌ فشل تنفيذ العملية: ${e.message || e}`;
-            console.error(e);
-        } finally {
-            spinner.style.display = 'none';
-            if (actionType === "send") loadSendersToday();
+        // ✅ يسجل فقط في حالة ALL بعد ما يخلص كل المهمات
+        if (actionType === "send" && selectedActivity === "ALL" && completed === targetActivities.length) {
+            await logSendAction(snsid, ssid);
         }
     }
+
+    resultMsg.style.color = '#0f0';
+    resultMsg.textContent = `✅ تم ${actionType === 'send' ? 'إرسال' : 'استقبال'} العملات بنجاح!\nعدد العمليات: ${total}`;
+} catch (e) {
+    resultMsg.style.color = 'red';
+    resultMsg.textContent = `❌ فشل تنفيذ العملية: ${e.message || e}`;
+    console.error(e);
+} finally {
+    spinner.style.display = 'none';
+    if (actionType === "send") loadSendersToday();
+}
 
     panelDiv.querySelector('#sendBtn').onclick = () => handleAction('send');
     panelDiv.querySelector('#receiveBtn').onclick = () => handleAction('accept');
