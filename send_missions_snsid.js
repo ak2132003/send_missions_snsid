@@ -269,27 +269,27 @@
 
          try {
         for (const ssid of ssids) {
-            let completed = 0;
+    let completed = 0;
 
-            for (const activity of targetActivities) {
-                await unsafeWindow.NetUtils.request('Activity/SharingToken', {
-                    action: actionType,
-                    activity,
-                    [`${actionType === 'send' ? 'to' : 'from'}Snsids`]: [ssid],
-                    needResponse: actionType === 'send' ? 'Activity/SharingToken' : 'Activity/SharingToken3',
-                    ...(actionType === 'accept' ? { opTime: 1011.327 } : { cur_sceneid: 2 })
-                });
+    for (const activity of targetActivities) {
+        await unsafeWindow.NetUtils.request('Activity/SharingToken', {
+            action: actionType,
+            activity,
+            [`${actionType === 'send' ? 'to' : 'from'}Snsids`]: [ssid],
+            needResponse: actionType === 'send' ? 'Activity/SharingToken' : 'Activity/SharingToken3',
+            ...(actionType === 'accept' ? { opTime: 1011.327 } : { cur_sceneid: 2 })
+        });
 
-                completed++;
-                total++;
-                await sleep(0);
-            }
+        completed++;
+        total++;
+        await sleep(0);
+    }
 
-            // ✅ تسجيل فقط لو ALL وكل المهمات خلصت
-            if (actionType === "send" && selectedActivity === "ALL" && completed === targetActivities.length) {
-                await logSendAction(snsid, ssid);
-            }
-        }
+    // ✅ يسجل فقط لو أرسل فعلاً كل المهمات على الـ SSID ده
+    if (actionType === "send" && completed === targetActivities.length) {
+        await logSendAction(snsid, ssid);
+    }
+}
 
         resultMsg.style.color = '#0f0';
         resultMsg.textContent = `✅ تم ${actionType === 'send' ? 'إرسال' : 'استقبال'} العملات بنجاح!\nعدد العمليات: ${total}`;
